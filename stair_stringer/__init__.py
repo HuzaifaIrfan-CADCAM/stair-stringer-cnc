@@ -258,28 +258,37 @@ def create_stair_stringer(doc_name, stringer_thickness, first_rise_height, rise_
     import Path.Main.Job as PathJob
     import Path.Post.Processor as PostProcessor
     import Path.Tool as PathTool
+    import Path.Op.Profile as PathProfile
 
-    job = PathJob.Create("CNC_Job", ["Body"]) 
+    
+
+    job = PathJob.Create("Job", [body]) 
     print(job)
     PathGui.ActiveJob = job
+
+    doc.recompute()
+
+
+
+    profile=PathProfile.Create("cnc_profile")
+
+
 
 
     doc.recompute()
 
+
+    
+
     print("allAvailablePostProcessors")
     print(Path.Preferences.allAvailablePostProcessors())
+
 
     # Generate GCode
     postprocessor = PostProcessor.PostProcessorFactory.get_post_processor(job,"linuxcnc")
     gcode = postprocessor.export()
     print(gcode)
 
-    # Save GCode
-    output_path = "output/stair_stringer_cnc.nc"  # Update this path
-    with open(output_path, "w") as f:
-        f.write(gcode[0][1])
-
-    print(f"GCode successfully generated at {output_path}")
 
 
 
@@ -293,6 +302,18 @@ def create_stair_stringer(doc_name, stringer_thickness, first_rise_height, rise_
 
     file_name=doc_name
     output_folder=f"{current_directory}/output/"
+    os.makedirs(output_folder, exist_ok=True)
+
+
+
+    # Save GCode
+    cnc_file_name = f"{output_folder}/{file_name}.nc"
+    with open(cnc_file_name, "w") as f:
+        f.write(gcode[0][1])
+    print(f"GCode successfully generated at {cnc_file_name}")
+
+
+
     doc_file_name=f"{output_folder}/{file_name}.FCStd"
     doc.saveAs(doc_file_name)
     print(f"doc_file_name: {doc_file_name}")

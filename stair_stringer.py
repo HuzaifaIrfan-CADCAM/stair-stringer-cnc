@@ -3,9 +3,14 @@ import freecad_env
 
 
 
+import math
 
 
 # Parameters
+stair_angle=33.5
+# Convert degrees to radians
+stair_angle_rad = math.radians(stair_angle)
+
 stringer_thickness = 1.5  # mm
 first_rise_height = 6.62
 rise_height = 7.625
@@ -14,6 +19,8 @@ run_depth = 11.5
 num_run = 15
 kicker_depth = 5.5
 kicker_height = 1.5
+
+rotate_for_cnc=True
 
 def inch(inches: float) -> float:
     """Convert inches to millimeters."""
@@ -166,60 +173,25 @@ sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
 sketch.addConstraint(Sketcher.Constraint('Coincident',i-1,2,i,1)) 
 sketch.addConstraint(Sketcher.Constraint('Coincident',i,2,0,1))
 
+if not rotate_for_cnc:
+
+    sketch.addConstraint(Sketcher.Constraint('DistanceX',-1,1,0,1,run_depth)) 
+    sketch.addConstraint(Sketcher.Constraint('DistanceY',-1,1,0,1,0))
+    sketch.addConstraint(Sketcher.Constraint('Horizontal',0))
+
+else:
+
+    # Rotate Stair on x axis for cnc
+    # Calculate base
+    base = math.cos(stair_angle_rad) * run_depth
+
+    sketch.addConstraint(Sketcher.Constraint('DistanceX',-1,1,0,1,base)) 
+    sketch.addConstraint(Sketcher.Constraint('DistanceY',-1,1,0,1,0))
+    sketch.addConstraint(Sketcher.Constraint('Angle',34,2,-1,2,3.141593))
 
 
-# sketch.delConstraint(10)#11
-# sketch.delConstraint(2)#3
-# 35
-# 33
-# 31
-# 29
-# 27
-# 25
-# 23
-# 21
-
-# run_depth - kicker_depth
-# sketch.addConstraint(Sketcher.Constraint('Distance',0,1,0,2,run_depth - kicker_depth))
-# sketch.addConstraint(Sketcher.Constraint('DistanceX',0,2,0,1,run_depth - kicker_depth))
-
-# kicker_height
-# sketch.addConstraint(Sketcher.Constraint('DistanceY',1,1,1,2,kicker_height))
-# sketch.addConstraint(Sketcher.Constraint('Distance',1,1,1,2,6.276437)) 
-
-# kicker_depth
-# sketch.addConstraint(Sketcher.Constraint('Distance',2,1,2,2,kicker_depth))
-# sketch.addConstraint(Sketcher.Constraint('DistanceX',2,2,2,1,kicker_depth)) 
-
-# first_rise_height - kicker_height
-# sketch.addConstraint(Sketcher.Constraint('Distance',3,1,3,2,first_rise_height - kicker_height)) 
-# sketch.addConstraint(Sketcher.Constraint('DistanceY',3,1,3,2,first_rise_height - kicker_height)) 
 
 
-# run_depth
-# sketch.addConstraint(Sketcher.Constraint('Distance',4,1,4,2,run_depth)) 
-# sketch.addConstraint(Sketcher.Constraint('DistanceX',4,1,4,2,run_depth)) 
-
-
-# Rise and Run in Loop
- 
-# i=5
-
-# for _ in range(0,num_run-1):
-#     # rise_height
-#     # sketch.addConstraint(Sketcher.Constraint('Distance',5,1,5,2,rise_height)) 
-#     sketch.addConstraint(Sketcher.Constraint('DistanceY',i,1,i,2,rise_height)) 
-#     i+=1
-
-#     # run_depth
-#     # sketch.addConstraint(Sketcher.Constraint('Distance',6,1,6,2,run_depth)) 
-#     sketch.addConstraint(Sketcher.Constraint('DistanceX',i,1,i,2,run_depth)) 
-#     i+=1
-
-
-# end rise reverse, rise_height
-# sketch.addConstraint(Sketcher.Constraint('Distance',7,1,7,2,rise_height))
-# sketch.addConstraint(Sketcher.Constraint('DistanceY',i,2,i,1,rise_height)) 
 
 
 pad=body.newObject('PartDesign::Pad','Pad')

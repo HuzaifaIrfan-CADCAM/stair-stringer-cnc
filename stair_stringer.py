@@ -21,20 +21,25 @@ kicker_depth = 5.5
 kicker_height = 1.5
 
 rotate_for_cnc=True
+back_cut_increase=5
 
-def inch(inches: float) -> float:
+def inch_to_mm(inches: float) -> float:
     """Convert inches to millimeters."""
     return inches * 25.4
 
 # Define parameters in inches, convert to mm
-stringer_thickness = inch(stringer_thickness)
-first_rise_height  = inch(first_rise_height)
-rise_height        = inch(rise_height)
+stringer_thickness = inch_to_mm(stringer_thickness)
+first_rise_height  = inch_to_mm(first_rise_height)
+rise_height        = inch_to_mm(rise_height)
 num_rise           = 16
-run_depth          = inch(run_depth)
+run_depth          = inch_to_mm(run_depth)
 num_run            = 15
-kicker_depth       = inch(kicker_depth)
-kicker_height      = inch(kicker_height)
+kicker_depth       = inch_to_mm(kicker_depth)
+kicker_height      = inch_to_mm(kicker_height)
+
+# stair back cut more according to real lumber work piece
+first_bottom_run_depth=run_depth+inch_to_mm(back_cut_increase)
+last_reverse_rise_height=rise_height+inch_to_mm(back_cut_increase)
 
 import FreeCAD, Part
 
@@ -57,10 +62,10 @@ sketch.MapMode = 'FlatFace'
 
 
 # run_depth - kicker_depth
-first_point=(run_depth,0.000000,0)
+first_point=(first_bottom_run_depth,0.000000,0)
 current_x, current_y, current_z = first_point
 previous_vector=App.Vector(current_x, current_y, current_z)
-current_x += -(run_depth - kicker_depth)
+current_x += -(first_bottom_run_depth - kicker_depth)
 current_y += 0
 current_vector=App.Vector(current_x, current_y, current_z)
 sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
@@ -68,7 +73,7 @@ sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
 # sketch.addConstraint(Sketcher.Constraint('PointOnObject',0,1,-1)) 
 # sketch.addConstraint(Sketcher.Constraint('PointOnObject',0,2,-1))
 # sketch.addConstraint(Sketcher.Constraint('Horizontal',0)) 
-sketch.addConstraint(Sketcher.Constraint('Distance',0,2,0,1,run_depth - kicker_depth))
+sketch.addConstraint(Sketcher.Constraint('Distance',0,2,0,1,first_bottom_run_depth - kicker_depth))
 
 # kicker_height
 previous_vector=current_vector
@@ -151,18 +156,19 @@ for _ in range(0,num_run-1):
     sketch.addConstraint(Sketcher.Constraint('Distance',i,1,i,2,run_depth)) 
     i+=1
 
-# end rise reverse, rise_height
+# end rise reverse, last_reverse_rise_height 
 previous_vector=current_vector
 current_x += 0
-current_y += -(rise_height)
+current_y += -(last_reverse_rise_height)
 current_vector=App.Vector(current_x, current_y, current_z)
 sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
 # sketch.addGeometry(Part.LineSegment(App.Vector(48.996853,27.765432,0),App.Vector(49.215199,14.228024,0)),False)
 sketch.addConstraint(Sketcher.Constraint('Coincident',i-1,2,i,1)) 
 # sketch.addConstraint(Sketcher.Constraint('Vertical',i))
 sketch.addConstraint(Sketcher.Constraint('Perpendicular',i-1,i))
-sketch.addConstraint(Sketcher.Constraint('Distance',i,2,i,1,rise_height)) 
+sketch.addConstraint(Sketcher.Constraint('Distance',i,2,i,1,last_reverse_rise_height)) 
 i+=1
+
 
 # close loop path
 previous_vector=current_vector

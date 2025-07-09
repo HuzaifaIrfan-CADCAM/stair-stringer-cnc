@@ -181,7 +181,7 @@ sketch.addConstraint(Sketcher.Constraint('Coincident',i,2,0,1))
 
 if not rotate_for_cnc:
 
-    sketch.addConstraint(Sketcher.Constraint('DistanceX',-1,1,0,1,run_depth)) 
+    sketch.addConstraint(Sketcher.Constraint('DistanceX',-1,1,0,1,first_bottom_run_depth)) 
     sketch.addConstraint(Sketcher.Constraint('DistanceY',-1,1,0,1,0))
     sketch.addConstraint(Sketcher.Constraint('Horizontal',0))
 
@@ -189,7 +189,7 @@ else:
 
     # Rotate Stair on x axis for cnc
     # Calculate base
-    base = math.cos(stair_angle_rad) * run_depth
+    base = math.cos(stair_angle_rad) * first_bottom_run_depth
 
     sketch.addConstraint(Sketcher.Constraint('DistanceX',-1,1,0,1,base)) 
     sketch.addConstraint(Sketcher.Constraint('DistanceY',-1,1,0,1,0))

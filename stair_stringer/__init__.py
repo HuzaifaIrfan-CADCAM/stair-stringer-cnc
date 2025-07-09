@@ -58,8 +58,8 @@ def create_stair_stringer(doc_name, stringer_thickness, first_rise_height, rise_
     # doc_name="StairStringerFixed"
 
     doc = App.newDocument(doc_name)
-    # App.setActiveDocument(doc_name)
-    # App.ActiveDocument=App.getDocument(doc_name)
+    App.setActiveDocument(doc_name)
+    App.ActiveDocument=App.getDocument(doc_name)
 
     body=doc.addObject('PartDesign::Body','Body')
     body.Label = 'Body'
@@ -252,6 +252,40 @@ def create_stair_stringer(doc_name, stringer_thickness, first_rise_height, rise_
     doc.recompute()
 
 
+    import PathScripts
+    import Path
+    import Path.Base.Gui as PathGui
+    import Path.Main.Job as PathJob
+    import Path.Post.Processor as PostProcessor
+    import Path.Tool as PathTool
+
+    job = PathJob.Create("CNC_Job", ["Body"]) 
+    print(job)
+    PathGui.ActiveJob = job
+
+
+    doc.recompute()
+
+    print("allAvailablePostProcessors")
+    print(Path.Preferences.allAvailablePostProcessors())
+
+    # Generate GCode
+    postprocessor = PostProcessor.PostProcessorFactory.get_post_processor(job,"linuxcnc")
+    gcode = postprocessor.export()
+    print(gcode)
+
+    # Save GCode
+    output_path = "output/stair_stringer_cnc.nc"  # Update this path
+    with open(output_path, "w") as f:
+        f.write(gcode[0][1])
+
+    print(f"GCode successfully generated at {output_path}")
+
+
+
+
+
+  
     import os
 
     current_directory = os.getcwd()

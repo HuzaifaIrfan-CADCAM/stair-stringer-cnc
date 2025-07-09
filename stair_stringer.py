@@ -48,33 +48,70 @@ sketch=body.newObject('Sketcher::SketchObject','Sketch')
 sketch.AttachmentSupport = (doc.getObject('XY_Plane'),[''])
 sketch.MapMode = 'FlatFace'
 
+
 # run_depth - kicker_depth
-sketch.addGeometry(Part.LineSegment(App.Vector(28.786367,0.000000,0),App.Vector(18.101997,0.000000,0)),False)
-sketch.addConstraint(Sketcher.Constraint('PointOnObject',0,1,-1)) 
-sketch.addConstraint(Sketcher.Constraint('PointOnObject',0,2,-1))
+first_point=(run_depth,0.000000,0)
+current_x, current_y, current_z = first_point
+previous_vector=App.Vector(current_x, current_y, current_z)
+current_x += -(run_depth - kicker_depth)
+current_y += 0
+current_vector=App.Vector(current_x, current_y, current_z)
+sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
+# sketch.addGeometry(Part.LineSegment(App.Vector(28.786367,0.000000,0),App.Vector(18.101997,0.000000,0)),False)
+# sketch.addConstraint(Sketcher.Constraint('PointOnObject',0,1,-1)) 
+# sketch.addConstraint(Sketcher.Constraint('PointOnObject',0,2,-1))
 # sketch.addConstraint(Sketcher.Constraint('Horizontal',0)) 
+sketch.addConstraint(Sketcher.Constraint('Distance',0,2,0,1,run_depth - kicker_depth))
 
 # kicker_height
-sketch.addGeometry(Part.LineSegment(App.Vector(18.101997,0.000000,0),App.Vector(18.248360,7.090004,0)),False)
+previous_vector=current_vector
+current_x += 0
+current_y += kicker_height
+current_vector=App.Vector(current_x, current_y, current_z)
+sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
+# sketch.addGeometry(Part.LineSegment(App.Vector(18.101997,0.000000,0),App.Vector(18.248360,7.090004,0)),False)
 sketch.addConstraint(Sketcher.Constraint('Coincident',0,2,1,1)) 
-sketch.addConstraint(Sketcher.Constraint('Vertical',1)) 
+# sketch.addConstraint(Sketcher.Constraint('Vertical',1)) 
+sketch.addConstraint(Sketcher.Constraint('Perpendicular',0,1))
+sketch.addConstraint(Sketcher.Constraint('Distance',1,1,1,2,kicker_height))
 
 # kicker_depth
-sketch.addGeometry(Part.LineSegment(App.Vector(18.248360,7.090004,0),App.Vector(0.000000,6.650920,0)),False)
+previous_vector=current_vector
+current_x += -(kicker_depth)
+current_y += 0
+current_vector=App.Vector(current_x, current_y, current_z)
+sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
+# sketch.addGeometry(Part.LineSegment(App.Vector(18.248360,7.090004,0),App.Vector(0.000000,6.650920,0)),False)
 sketch.addConstraint(Sketcher.Constraint('Coincident',1,2,2,1)) 
-sketch.addConstraint(Sketcher.Constraint('PointOnObject',2,2,-2)) 
-sketch.addConstraint(Sketcher.Constraint('Horizontal',2)) 
+# sketch.addConstraint(Sketcher.Constraint('PointOnObject',2,2,-2)) 
+# sketch.addConstraint(Sketcher.Constraint('Horizontal',2)) 
+sketch.addConstraint(Sketcher.Constraint('Perpendicular',1,2))
+sketch.addConstraint(Sketcher.Constraint('Distance',2,2,2,1,kicker_depth)) 
 
 # first_rise_height - kicker_height
-sketch.addGeometry(Part.LineSegment(App.Vector(0.000000,6.650920,0),App.Vector(0.000000,13.922371,0)),False)
+previous_vector=current_vector
+current_x += 0
+current_y += first_rise_height - kicker_height
+current_vector=App.Vector(current_x, current_y, current_z)
+sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
+# sketch.addGeometry(Part.LineSegment(App.Vector(0.000000,6.650920,0),App.Vector(0.000000,13.922371,0)),False)
 sketch.addConstraint(Sketcher.Constraint('Coincident',2,2,3,1)) 
-sketch.addConstraint(Sketcher.Constraint('PointOnObject',3,2,-2)) 
+# sketch.addConstraint(Sketcher.Constraint('PointOnObject',3,2,-2)) 
 # sketch.addConstraint(Sketcher.Constraint('Vertical',3)) 
+sketch.addConstraint(Sketcher.Constraint('Perpendicular',2,3))
+sketch.addConstraint(Sketcher.Constraint('Distance',3,1,3,2,first_rise_height - kicker_height)) 
 
 # run_depth
-sketch.addGeometry(Part.LineSegment(App.Vector(0.000000,13.922371,0),App.Vector(29.782467,14.664711,0)),False)
+previous_vector=current_vector
+current_x += run_depth
+current_y += 0
+current_vector=App.Vector(current_x, current_y, current_z)
+sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
+# sketch.addGeometry(Part.LineSegment(App.Vector(0.000000,13.922371,0),App.Vector(29.782467,14.664711,0)),False)
 sketch.addConstraint(Sketcher.Constraint('Coincident',3,2,4,1)) 
-sketch.addConstraint(Sketcher.Constraint('Horizontal',4)) 
+# sketch.addConstraint(Sketcher.Constraint('Horizontal',4)) 
+sketch.addConstraint(Sketcher.Constraint('Perpendicular',3,4))
+sketch.addConstraint(Sketcher.Constraint('Distance',4,1,4,2,run_depth)) 
 
 # Rise and Run in Loop
 
@@ -82,27 +119,54 @@ i=5
 
 for _ in range(0,num_run-1):
     # rise_height
-    sketch.addGeometry(Part.LineSegment(App.Vector(29.782467,14.664711,0),App.Vector(30.000813,27.547087,0)),False)
+    previous_vector=current_vector
+    current_x += 0
+    current_y += rise_height
+    current_vector=App.Vector(current_x, current_y, current_z)
+    sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
+    # sketch.addGeometry(Part.LineSegment(App.Vector(29.782467,14.664711,0),App.Vector(30.000813,27.547087,0)),False)
     sketch.addConstraint(Sketcher.Constraint('Coincident',i-1,2,i,1)) 
-    sketch.addConstraint(Sketcher.Constraint('Vertical',i)) 
+    # sketch.addConstraint(Sketcher.Constraint('Vertical',i)) 
+    sketch.addConstraint(Sketcher.Constraint('Perpendicular',i-1,i))
+    sketch.addConstraint(Sketcher.Constraint('Distance',i,1,i,2,rise_height)) 
     i+=1
 
     # run_depth
-    sketch.addGeometry(Part.LineSegment(App.Vector(30.000813,27.547087,0),App.Vector(48.996853,27.765432,0)),False)
+    previous_vector=current_vector
+    current_x += run_depth
+    current_y += 0
+    current_vector=App.Vector(current_x, current_y, current_z)
+    sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
+    # sketch.addGeometry(Part.LineSegment(App.Vector(30.000813,27.547087,0),App.Vector(48.996853,27.765432,0)),False)
     sketch.addConstraint(Sketcher.Constraint('Coincident',i-1,2,i,1)) 
-    sketch.addConstraint(Sketcher.Constraint('Horizontal',i))
+    # sketch.addConstraint(Sketcher.Constraint('Horizontal',i))
+    sketch.addConstraint(Sketcher.Constraint('Perpendicular',i-1,i))
+    sketch.addConstraint(Sketcher.Constraint('Distance',i,1,i,2,run_depth)) 
     i+=1
 
 # end rise reverse, rise_height
-sketch.addGeometry(Part.LineSegment(App.Vector(48.996853,27.765432,0),App.Vector(49.215199,14.228024,0)),False)
+previous_vector=current_vector
+current_x += 0
+current_y += -(rise_height)
+current_vector=App.Vector(current_x, current_y, current_z)
+sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
+# sketch.addGeometry(Part.LineSegment(App.Vector(48.996853,27.765432,0),App.Vector(49.215199,14.228024,0)),False)
 sketch.addConstraint(Sketcher.Constraint('Coincident',i-1,2,i,1)) 
-sketch.addConstraint(Sketcher.Constraint('Vertical',i))
+# sketch.addConstraint(Sketcher.Constraint('Vertical',i))
+sketch.addConstraint(Sketcher.Constraint('Perpendicular',i-1,i))
+sketch.addConstraint(Sketcher.Constraint('Distance',i,2,i,1,rise_height)) 
 i+=1
 
 # close loop path
-sketch.addGeometry(Part.LineSegment(App.Vector(49.215199,14.228024,0),App.Vector(28.786367,0.000000,0)),False)
+previous_vector=current_vector
+current_x, current_y, current_z = first_point
+current_vector=App.Vector(current_x, current_y, current_z)
+sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
+# sketch.addGeometry(Part.LineSegment(App.Vector(49.215199,14.228024,0),App.Vector(28.786367,0.000000,0)),False)
 sketch.addConstraint(Sketcher.Constraint('Coincident',i-1,2,i,1)) 
 sketch.addConstraint(Sketcher.Constraint('Coincident',i,2,0,1))
+
+
 
 # sketch.delConstraint(10)#11
 # sketch.delConstraint(2)#3
@@ -117,45 +181,45 @@ sketch.addConstraint(Sketcher.Constraint('Coincident',i,2,0,1))
 
 # run_depth - kicker_depth
 # sketch.addConstraint(Sketcher.Constraint('Distance',0,1,0,2,run_depth - kicker_depth))
-sketch.addConstraint(Sketcher.Constraint('DistanceX',0,2,0,1,run_depth - kicker_depth))
+# sketch.addConstraint(Sketcher.Constraint('DistanceX',0,2,0,1,run_depth - kicker_depth))
 
 # kicker_height
-sketch.addConstraint(Sketcher.Constraint('DistanceY',1,1,1,2,kicker_height))
+# sketch.addConstraint(Sketcher.Constraint('DistanceY',1,1,1,2,kicker_height))
 # sketch.addConstraint(Sketcher.Constraint('Distance',1,1,1,2,6.276437)) 
 
 # kicker_depth
 # sketch.addConstraint(Sketcher.Constraint('Distance',2,1,2,2,kicker_depth))
-sketch.addConstraint(Sketcher.Constraint('DistanceX',2,2,2,1,kicker_depth)) 
+# sketch.addConstraint(Sketcher.Constraint('DistanceX',2,2,2,1,kicker_depth)) 
 
 # first_rise_height - kicker_height
 # sketch.addConstraint(Sketcher.Constraint('Distance',3,1,3,2,first_rise_height - kicker_height)) 
-sketch.addConstraint(Sketcher.Constraint('DistanceY',3,1,3,2,first_rise_height - kicker_height)) 
+# sketch.addConstraint(Sketcher.Constraint('DistanceY',3,1,3,2,first_rise_height - kicker_height)) 
 
 
 # run_depth
 # sketch.addConstraint(Sketcher.Constraint('Distance',4,1,4,2,run_depth)) 
-sketch.addConstraint(Sketcher.Constraint('DistanceX',4,1,4,2,run_depth)) 
+# sketch.addConstraint(Sketcher.Constraint('DistanceX',4,1,4,2,run_depth)) 
 
 
 # Rise and Run in Loop
  
-i=5
+# i=5
 
-for _ in range(0,num_run-1):
-    # rise_height
-    # sketch.addConstraint(Sketcher.Constraint('Distance',5,1,5,2,rise_height)) 
-    sketch.addConstraint(Sketcher.Constraint('DistanceY',i,1,i,2,rise_height)) 
-    i+=1
+# for _ in range(0,num_run-1):
+#     # rise_height
+#     # sketch.addConstraint(Sketcher.Constraint('Distance',5,1,5,2,rise_height)) 
+#     sketch.addConstraint(Sketcher.Constraint('DistanceY',i,1,i,2,rise_height)) 
+#     i+=1
 
-    # run_depth
-    # sketch.addConstraint(Sketcher.Constraint('Distance',6,1,6,2,run_depth)) 
-    sketch.addConstraint(Sketcher.Constraint('DistanceX',i,1,i,2,run_depth)) 
-    i+=1
+#     # run_depth
+#     # sketch.addConstraint(Sketcher.Constraint('Distance',6,1,6,2,run_depth)) 
+#     sketch.addConstraint(Sketcher.Constraint('DistanceX',i,1,i,2,run_depth)) 
+#     i+=1
 
 
 # end rise reverse, rise_height
 # sketch.addConstraint(Sketcher.Constraint('Distance',7,1,7,2,rise_height))
-sketch.addConstraint(Sketcher.Constraint('DistanceY',i,2,i,1,rise_height)) 
+# sketch.addConstraint(Sketcher.Constraint('DistanceY',i,2,i,1,rise_height)) 
 
 
 pad=body.newObject('PartDesign::Pad','Pad')

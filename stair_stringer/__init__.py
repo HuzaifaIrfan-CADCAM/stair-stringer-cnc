@@ -8,7 +8,7 @@ def inch_to_mm(inches: float) -> float:
     """Convert inches to millimeters."""
     return inches * 25.4
 
-def create_stair_stringer(doc_name, stringer_thickness = 1.5, first_rise_height = 6.62, rise_height = 7.625,num_rise = 16, run_depth = 11.5, num_run = 15, kicker_depth = 5.5, kicker_height = 1.5, stair_angle=33.5, back_cut_increase=5, rotate_for_cnc=True):
+def create_stair_stringer(doc_name, stringer_thickness, first_rise_height, rise_height, num_rise, run_depth, num_run, kicker, kicker_depth, kicker_height, stair_angle, back_cut_increase, rotate_for_cnc):
     
 
     # Parameters
@@ -18,6 +18,7 @@ def create_stair_stringer(doc_name, stringer_thickness = 1.5, first_rise_height 
     # num_rise = 16
     # run_depth = 11.5
     # num_run = 15
+    # kicker=True
     # kicker_depth = 5.5
     # kicker_height = 1.5
 
@@ -38,9 +39,9 @@ def create_stair_stringer(doc_name, stringer_thickness = 1.5, first_rise_height 
     stringer_thickness = inch_to_mm(stringer_thickness)
     first_rise_height  = inch_to_mm(first_rise_height)
     rise_height        = inch_to_mm(rise_height)
-    num_rise           = 16
+    # num_rise           = 16
     run_depth          = inch_to_mm(run_depth)
-    num_run            = 15
+    # num_run            = 15
     kicker_depth       = inch_to_mm(kicker_depth)
     kicker_height      = inch_to_mm(kicker_height)
 
@@ -67,58 +68,75 @@ def create_stair_stringer(doc_name, stringer_thickness = 1.5, first_rise_height 
     sketch.AttachmentSupport = (doc.getObject('XY_Plane'),[''])
     sketch.MapMode = 'FlatFace'
 
-
+    i=0
     # run_depth - kicker_depth
     first_point=(first_bottom_run_depth,0.000000,0)
     current_x, current_y, current_z = first_point
     previous_vector=App.Vector(current_x, current_y, current_z)
-    current_x += -(first_bottom_run_depth - kicker_depth)
+    if kicker:
+        current_x += -(first_bottom_run_depth - kicker_depth)
+    else:
+        current_x += -(first_bottom_run_depth)
     current_y += 0
     current_vector=App.Vector(current_x, current_y, current_z)
     sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
     # sketch.addGeometry(Part.LineSegment(App.Vector(28.786367,0.000000,0),App.Vector(18.101997,0.000000,0)),False)
     # sketch.addConstraint(Sketcher.Constraint('PointOnObject',0,1,-1)) 
     # sketch.addConstraint(Sketcher.Constraint('PointOnObject',0,2,-1))
-    # sketch.addConstraint(Sketcher.Constraint('Horizontal',0)) 
-    sketch.addConstraint(Sketcher.Constraint('Distance',0,2,0,1,first_bottom_run_depth - kicker_depth))
+    # sketch.addConstraint(Sketcher.Constraint('Horizontal',0))
+    if kicker:
+        sketch.addConstraint(Sketcher.Constraint('Distance',i,2,i,1,first_bottom_run_depth - kicker_depth))
+    else:
+        sketch.addConstraint(Sketcher.Constraint('Distance',i,2,i,1,first_bottom_run_depth))
+    i+=1
 
-    # kicker_height
-    previous_vector=current_vector
-    current_x += 0
-    current_y += kicker_height
-    current_vector=App.Vector(current_x, current_y, current_z)
-    sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
-    # sketch.addGeometry(Part.LineSegment(App.Vector(18.101997,0.000000,0),App.Vector(18.248360,7.090004,0)),False)
-    sketch.addConstraint(Sketcher.Constraint('Coincident',0,2,1,1)) 
-    # sketch.addConstraint(Sketcher.Constraint('Vertical',1)) 
-    sketch.addConstraint(Sketcher.Constraint('Perpendicular',0,1))
-    sketch.addConstraint(Sketcher.Constraint('Distance',1,1,1,2,kicker_height))
+    if kicker:
+        # kicker_height
+        previous_vector=current_vector
+        current_x += 0
+        current_y += kicker_height
+        current_vector=App.Vector(current_x, current_y, current_z)
+        sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
+        # sketch.addGeometry(Part.LineSegment(App.Vector(18.101997,0.000000,0),App.Vector(18.248360,7.090004,0)),False)
+        sketch.addConstraint(Sketcher.Constraint('Coincident',i-1,2,i,1)) 
+        # sketch.addConstraint(Sketcher.Constraint('Vertical',1)) 
+        sketch.addConstraint(Sketcher.Constraint('Perpendicular',i-1,i))
+        sketch.addConstraint(Sketcher.Constraint('Distance',i,1,i,2,kicker_height))
+        i+=1
 
-    # kicker_depth
-    previous_vector=current_vector
-    current_x += -(kicker_depth)
-    current_y += 0
-    current_vector=App.Vector(current_x, current_y, current_z)
-    sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
-    # sketch.addGeometry(Part.LineSegment(App.Vector(18.248360,7.090004,0),App.Vector(0.000000,6.650920,0)),False)
-    sketch.addConstraint(Sketcher.Constraint('Coincident',1,2,2,1)) 
-    # sketch.addConstraint(Sketcher.Constraint('PointOnObject',2,2,-2)) 
-    # sketch.addConstraint(Sketcher.Constraint('Horizontal',2)) 
-    sketch.addConstraint(Sketcher.Constraint('Perpendicular',1,2))
-    sketch.addConstraint(Sketcher.Constraint('Distance',2,2,2,1,kicker_depth)) 
+        # kicker_depth
+        previous_vector=current_vector
+        current_x += -(kicker_depth)
+        current_y += 0
+        current_vector=App.Vector(current_x, current_y, current_z)
+        sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
+        # sketch.addGeometry(Part.LineSegment(App.Vector(18.248360,7.090004,0),App.Vector(0.000000,6.650920,0)),False)
+        sketch.addConstraint(Sketcher.Constraint('Coincident',i-1,2,i,1)) 
+        # sketch.addConstraint(Sketcher.Constraint('PointOnObject',2,2,-2)) 
+        # sketch.addConstraint(Sketcher.Constraint('Horizontal',2)) 
+        sketch.addConstraint(Sketcher.Constraint('Perpendicular',i-1,i))
+        sketch.addConstraint(Sketcher.Constraint('Distance',i,2,i,1,kicker_depth))
+        i+=1
 
     # first_rise_height - kicker_height
     previous_vector=current_vector
     current_x += 0
-    current_y += first_rise_height - kicker_height
+    if kicker:
+        current_y += first_rise_height - kicker_height
+    else:
+        current_y += first_rise_height 
     current_vector=App.Vector(current_x, current_y, current_z)
     sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
     # sketch.addGeometry(Part.LineSegment(App.Vector(0.000000,6.650920,0),App.Vector(0.000000,13.922371,0)),False)
-    sketch.addConstraint(Sketcher.Constraint('Coincident',2,2,3,1)) 
+    sketch.addConstraint(Sketcher.Constraint('Coincident',i-1,2,i,1)) 
     # sketch.addConstraint(Sketcher.Constraint('PointOnObject',3,2,-2)) 
     # sketch.addConstraint(Sketcher.Constraint('Vertical',3)) 
-    sketch.addConstraint(Sketcher.Constraint('Perpendicular',2,3))
-    sketch.addConstraint(Sketcher.Constraint('Distance',3,1,3,2,first_rise_height - kicker_height)) 
+    sketch.addConstraint(Sketcher.Constraint('Perpendicular',i-1,i))
+    if kicker:
+        sketch.addConstraint(Sketcher.Constraint('Distance',i,1,i,2,first_rise_height - kicker_height)) 
+    else:
+        sketch.addConstraint(Sketcher.Constraint('Distance',i,1,i,2,first_rise_height)) 
+    i+=1
 
     # run_depth
     previous_vector=current_vector
@@ -127,14 +145,14 @@ def create_stair_stringer(doc_name, stringer_thickness = 1.5, first_rise_height 
     current_vector=App.Vector(current_x, current_y, current_z)
     sketch.addGeometry(Part.LineSegment(previous_vector,current_vector),False)
     # sketch.addGeometry(Part.LineSegment(App.Vector(0.000000,13.922371,0),App.Vector(29.782467,14.664711,0)),False)
-    sketch.addConstraint(Sketcher.Constraint('Coincident',3,2,4,1)) 
+    sketch.addConstraint(Sketcher.Constraint('Coincident',i-1,2,i,1)) 
     # sketch.addConstraint(Sketcher.Constraint('Horizontal',4)) 
-    sketch.addConstraint(Sketcher.Constraint('Perpendicular',3,4))
-    sketch.addConstraint(Sketcher.Constraint('Distance',4,1,4,2,run_depth)) 
-
+    sketch.addConstraint(Sketcher.Constraint('Perpendicular',i-1,i))
+    sketch.addConstraint(Sketcher.Constraint('Distance',i,1,i,2,run_depth)) 
+    i+=1
     # Rise and Run in Loop
 
-    i=5
+    # i=5
 
     for _ in range(0,num_run-1):
         # rise_height
@@ -200,7 +218,8 @@ def create_stair_stringer(doc_name, stringer_thickness = 1.5, first_rise_height 
 
         sketch.addConstraint(Sketcher.Constraint('DistanceX',-1,1,0,1,base)) 
         sketch.addConstraint(Sketcher.Constraint('DistanceY',-1,1,0,1,0))
-        sketch.addConstraint(Sketcher.Constraint('Angle',34,2,-1,2,3.141593))
+
+        sketch.addConstraint(Sketcher.Constraint('Angle',i,2,-1,2,3.141593))
 
 
 
